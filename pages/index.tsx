@@ -1,6 +1,9 @@
-import { useState } from 'react';
 import axios from 'axios';
-import styles from '../styles.module.css';
+import { useState, FormEvent } from 'react';
+
+// import  '../styles/styles.module.css';
+// import "../styles/styles.css"
+import styles from '../styles/InputForm.module.css';
 
 interface FormData {
   origin: string;
@@ -13,21 +16,27 @@ export default function Home() {
     metrics: [],
   });
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const [result, setResult] = useState(null);
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
     try {
-      const response = await axios.post('/api/chromeuxreport', formData);
-      console.log(response.data);
+      const response = await axios.post('/api/query', formData);
+      setResult(response.data);
     } catch (error) {
       console.error(error);
+      setResult(null);
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+  // const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const { name, value } = e.target;
+  //   setFormData({ ...formData, [name]: value });
+  // };
+  const handleOriginChange = (event: FormEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, origin: event.currentTarget.value });
   };
-
   const handleMetricChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { checked, name } = e.target;
     if (checked) {
@@ -42,15 +51,29 @@ export default function Home() {
       });
     }
   };
-
+  const handleMetricsChange = (event: FormEvent<HTMLTextAreaElement>) => {
+    setFormData({
+      ...formData,
+      metrics: event.currentTarget.value.split('\n').filter((x) => x !== ''),
+    });
+  };
   return (
-    <form onSubmit={handleSubmit}>
-      <label>
+    <div  className={styles.container} >
+
+    
+    <form onSubmit={handleSubmit}  className={styles.form}>
+      <label className={styles.label}>
         Origin:
-        <input type="text" name="origin" onChange={handleInputChange} />
+        <input 
+        className={styles.input}
+        id="origin"
+        type="text"
+        value={formData.origin}
+        onChange={handleOriginChange}
+         />
       </label>
       <br />
-      <label>
+      <label className={styles.label} htmlFor="metrics">
         Metrics:
         <br />
         <label>
@@ -64,6 +87,7 @@ export default function Home() {
         <br />
         <label>
           <input
+           className={styles.labeltext}
             type="checkbox"
             name="first_input_delay"
             onChange={handleMetricChange}
@@ -80,8 +104,21 @@ export default function Home() {
           Cumulative Layout Shift
         </label>
       </label>
+      <textarea
+          className={styles.textarea}
+          id="metrics"
+          value={formData.metrics.join('\n')}
+          onChange={handleMetricsChange}
+        />
       <br />
-      <button type="submit">Submit</button>
+      <button type="submit" className={styles.button} >Submit</button>
     </form>
+    {result && (
+        <div className={styles.result}>
+          <h2>Query Result</h2>
+          <pre>{JSON.stringify(result, null, 2)}</pre>
+        </div>
+      )}
+    </div>
   );
 }
