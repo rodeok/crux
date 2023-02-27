@@ -18,7 +18,7 @@ export default async function handler(
 
   try {
     const response = await axios.post(
-      `https://chromeuxreport.googleapis.com/v1/records:queryRecord?key=AIzaSyBKeoCr-URIP-kR_5wL0t08Ce_8TUMc7A4`,
+      `https://chromeuxreport.googleapis.com/v1/records:queryRecord?key=4`,
       {
         formFactor: 'PHONE',
         origin: formData.origin,
